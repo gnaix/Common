@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="pull_label">下拉刷新</string>
+    <string name="pull_release_label">放开以刷新…</string>
+    <string name="loading_label">正在载入…</string>
+    <string name="pull_last_time">上次更新时间：</string>
+    <string name="load_label">查看更多</string>
+
+</resources>
