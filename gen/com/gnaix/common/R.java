@@ -76,15 +76,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
         public static int ic_pullandload_arrow=0x7f020003;
     }
     public static final class id {
-        public static int footer_content=0x7f040011;
-        public static int footer_hint_textview=0x7f040013;
-        public static int footer_progressbar=0x7f040012;
-        public static int header_arrow=0x7f040018;
-        public static int header_content=0x7f040014;
-        public static int header_hint_textview=0x7f040016;
-        public static int header_progressbar=0x7f040019;
-        public static int header_text=0x7f040015;
-        public static int header_time=0x7f040017;
         public static int list=0x7f040010;
         public static int roboto_black=0x7f04000a;
         public static int roboto_black_italic=0x7f04000b;
@@ -105,8 +96,6 @@ or to a theme attribute in the form "<code>?[<i>package</i>:][<i>type</i>:]<i>na
     }
     public static final class layout {
         public static int activity_main=0x7f030000;
-        public static int pull_and_load_listview_footer=0x7f030001;
-        public static int pull_and_load_listview_header=0x7f030002;
     }
     public static final class string {
         public static int app_name=0x7f050005;

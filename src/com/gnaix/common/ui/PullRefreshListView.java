@@ -4,12 +4,13 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -20,28 +21,30 @@ public class PullRefreshListView extends LinearLayout implements OnScrollListene
     private boolean mReadyToPull = false;
     private int mPullStartY;
     private ListView delegate;
-
-    private float mScrollFactor = 0.75f;
+    private LinearLayout mLoadingIndicator;
+    
     private static final int DEFAULT_LIMIT = 5;
 
     private int minPullDownDistance = 300;
 
     private OnPullListener mPullListener;
+    
+    private boolean isCanLoadMore = true;
 
     public PullRefreshListView(Context context) {
         this(context, null);
     }
+    
+    public void setLoadMoreable(boolean loadmore) {
+        isCanLoadMore = loadmore;
+    }
+    
+    public boolean isLoadMoreable() {
+        return isCanLoadMore;
+    }
 
     public PullRefreshListView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
-    }
-
-    public void setScrollFactor(float distance) {
-        mScrollFactor = distance;
-    }
-
-    public float getScrollFactor() {
-        return mScrollFactor;
     }
 
     @SuppressLint("NewApi")
@@ -52,11 +55,21 @@ public class PullRefreshListView extends LinearLayout implements OnScrollListene
         delegate.setId(NO_ID);
         delegate.setOnScrollListener(this);
         addView(delegate, new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
+        mLoadingIndicator = new LinearLayout(context);
+        mLoadingIndicator.setLayoutParams(new AbsListView.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT));
+        delegate.addFooterView(mLoadingIndicator);
+        mLoadingIndicator.setVisibility(View.GONE);
     }
 
     public void setAdapter(ListAdapter adapter) {
         delegate.setAdapter(adapter);
     }
+    
+    public void setFooterLayout(int id) {
+        mLoadingIndicator.removeAllViews();
+        LayoutInflater.from(getContext()).inflate(id, mLoadingIndicator,true);
+    }
+    
 
     public void setOnItemClickListener(OnItemClickListener listener) {
         delegate.setOnItemClickListener(listener);
@@ -95,10 +108,11 @@ public class PullRefreshListView extends LinearLayout implements OnScrollListene
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
-        if (totalItemCount > 0) {
-            if ((firstVisibleItem + visibleItemCount) >= totalItemCount / 3 * 2) {
+        if (isLoadMoreable() && totalItemCount > 1) {
+            if ((firstVisibleItem + visibleItemCount) >= totalItemCount) {
                 if (!mPullRefreshing && !mLoadingMore && mPullListener != null) {
                     Log.i("PullRefreshListView", "load more");
+                    mLoadingIndicator.setVisibility(View.VISIBLE);
                     mPullListener.onLoadMore();
                     mLoadingMore = true;
                 }
@@ -113,6 +127,7 @@ public class PullRefreshListView extends LinearLayout implements OnScrollListene
 
     public final void completeLoadMore() {
         mLoadingMore = false;
+        mLoadingIndicator.setVisibility(View.GONE);
         Log.i("PullRefreshListView", "complete load more");
     }
 
