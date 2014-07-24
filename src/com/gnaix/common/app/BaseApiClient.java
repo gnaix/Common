@@ -42,7 +42,6 @@ public class BaseApiClient {
     protected String mServer;
     protected String mIP;
 
-    private String value;
     private static int eventId = 5000;
 
     public static DefaultHttpClient sLongHttpClient;
@@ -53,7 +52,7 @@ public class BaseApiClient {
     public static final int HTTP_TIMEOUT = 30000;
     public static final int SOCKET_TIMEOUT = 30000;
 
-    public static HttpClient getShortHttpClient(Context context) {
+    public static HttpClient getHttpClient(Context context) {
         BasicHttpParams httpParams = new BasicHttpParams();
         HttpConnectionParams.setConnectionTimeout(httpParams, HTTP_TIMEOUT);
         HttpConnectionParams.setSoTimeout(httpParams, SOCKET_TIMEOUT);
@@ -72,27 +71,6 @@ public class BaseApiClient {
         return httpClient;
     }
 
-    private static HttpClient getLongHttpClient(Context context) {
-        if (sLongHttpClient == null) {
-            System.out.println("Create Long Connection");
-            BasicHttpParams httpParams = new BasicHttpParams();
-            HttpConnectionParams.setConnectionTimeout(httpParams, HTTP_TIMEOUT);
-            HttpConnectionParams.setSoTimeout(httpParams, SOCKET_TIMEOUT);
-            sLongHttpClient = new DefaultHttpClient(httpParams);
-            int waptype = NetworkUtil.getNetworkType(context);
-            if (waptype == NetworkUtil.TYPE_CM_CU_WAP) {
-                System.out.println("is cmwap or unwap");
-                HttpHost httpHost = new HttpHost("10.0.0.172", 80);
-                sLongHttpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, httpHost);
-            } else if (waptype == NetworkUtil.TYPE_CT_WAP) {
-                System.out.println("is ctwap");
-                HttpHost httpHost = new HttpHost("10.0.0.200", 80);
-                sLongHttpClient.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, httpHost);
-            }
-        }
-        return sLongHttpClient;
-    }
-
     public HttpResponse excute(Context context, String url) throws Exception {
         if (!BuildConfig.DEBUG) {
             if (TextUtils.isEmpty(mIP)) {
@@ -106,14 +84,7 @@ public class BaseApiClient {
         request.addHeader("Connection", "Close");
         modifyRequestToAcceptGzipResponse(request);
         //        HttpClient client = getHttpClient(context);
-        HttpClient client = null;
-        if (LONG_CONNECTION.equals(mConnType)) {
-            request.addHeader("Connection", "Keep-Alive");
-            client = getLongHttpClient(context);
-        } else {
-            request.addHeader("Connection", "Close");
-            client = getShortHttpClient(context);
-        }
+        HttpClient client = getHttpClient(context);
         if (NetworkUtil.isWap(context)) {
             return client.execute(request);
         } else {
